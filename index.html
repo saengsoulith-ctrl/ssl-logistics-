@@ -17,27 +17,30 @@
   </div>
 
   <script>
-    const PROJECT_ID = 'kpmegijooqxnPcremsbu';
-    'sb_publishable_XBjM1lI0dpk6j8yOnVuItg_00EfkMzR'
+    const PROJECT_ID = 'kpmegijooqxnpcremsbu';
+    const API_KEY = 'sb_publishable_XBjM1lI0dpk6j8yOnVuItg_00EfkMzR';
 
     async function loadData() {
       const list = document.getElementById('list');
       try {
         const res = await fetch(`https://${PROJECT_ID}.supabase.co/rest/v1/SSL%20LOGISTICS?select=*`, {
           headers: {
-            'apikey': API_KEY,
-            'Authorization': 'Bearer ' + API_KEY
+            'apikey': API_KEY
           }
         });
         const data = await res.json();
         
-        if (!Array.isArray(data) || data.length === 0) {
+        if (!Array.isArray(data)) {
+          list.innerHTML = 'ระบบแจ้งเตือน: ' + (data.message || JSON.stringify(data));
+          return;
+        }
+        if (data.length === 0) {
           list.innerHTML = 'ยังไม่มีข้อมูลพัสดุ (อย่าลืมปิด RLS ใน Supabase)';
           return;
         }
         list.innerHTML = data.map(row => `<div class="item">เลขพัสดุ: ${row.Tracking_no1}</div>`).join('');
       } catch (err) {
-        list.innerHTML = 'เกิดข้อผิดพลาดในการเชื่อมต่อ';
+        list.innerHTML = 'เกิดข้อผิดพลาด: ' + err.message;
       }
     }
     loadData();
