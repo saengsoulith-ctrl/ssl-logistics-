@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SSL LOGISTICS - เช็กพัสดุ</title>
-  <script src="https://jsdelivr.net"></script>
-
   <style>
     body { font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; background: #f4f6f8; }
     .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
@@ -19,25 +17,28 @@
   </div>
 
   <script>
-    const SUPABASE_URL = 'https://kpmegijooqxnpcremsbu.supabase.co'
-    const SUPABASE_KEY = 'sb_publishable_XBjM1lI0dpk6j8yOnVuItg_00EfkMzR';
-
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const PROJECT_ID = 'kpmegijooqxnPcremsbu';
+    'sb_publishable_XBjM1lI0dpk6j8yOnVuItg_00EfkMzR'
 
     async function loadData() {
-      const { data, error } = await db.from('SSL LOGISTICS').select('*');
       const list = document.getElementById('list');
-      
-      if (error) {
-        list.innerHTML = 'เกิดข้อผิดพลาด: ' + error.message;
-        return;
+      try {
+        const res = await fetch(`https://${PROJECT_ID}.supabase.co/rest/v1/SSL%20LOGISTICS?select=*`, {
+          headers: {
+            'apikey': API_KEY,
+            'Authorization': 'Bearer ' + API_KEY
+          }
+        });
+        const data = await res.json();
+        
+        if (!Array.isArray(data) || data.length === 0) {
+          list.innerHTML = 'ยังไม่มีข้อมูลพัสดุ (อย่าลืมปิด RLS ใน Supabase)';
+          return;
+        }
+        list.innerHTML = data.map(row => `<div class="item">เลขพัสดุ: ${row.Tracking_no1}</div>`).join('');
+      } catch (err) {
+        list.innerHTML = 'เกิดข้อผิดพลาดในการเชื่อมต่อ';
       }
-      if (data.length === 0) {
-        list.innerHTML = 'ยังไม่มีข้อมูลพัสดุ';
-        return;
-      }
-      
-      list.innerHTML = data.map(row => `<div class="item">เลขพัสดุ: ${row.Tracking_no1}</div>`).join('');
     }
     loadData();
   </script>
